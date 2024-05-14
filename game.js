@@ -118,6 +118,8 @@ function startGame(playerImage) {
 
     document.getElementById('upBtn').addEventListener('touchstart', () => player.jump());
     document.getElementById('upBtn').addEventListener('touchend', () => player.stopX());
+
+    document.getElementById('playerSelection').classList.add('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
