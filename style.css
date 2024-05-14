@@ -6,7 +6,7 @@ body {
     align-items: center;
     height: 100vh;
     background-color: #000;
-    flex-direction: column;
+    overflow: hidden;
 }
 
 canvas {
@@ -15,19 +15,16 @@ canvas {
 
 .controls {
     position: fixed;
+    bottom: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.left-controls, .right-controls {
     display: flex;
     gap: 10px;
-}
-
-.left-controls {
-    bottom: 10px;
-    left: 10px;
-}
-
-.right-controls {
-    bottom: 10px;
-    right: 10px;
-    flex-direction: column;
 }
 
 button {
@@ -41,26 +38,35 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
 }
 
-/* Media query untuk mode landscape */
+/* Responsif untuk mode portrait dan landscape */
 @media (orientation: landscape) {
-    body {
-        flex-direction: row;
+    canvas {
+        width: 100vw;
+        height: auto;
     }
 
-    .left-controls {
-        bottom: auto;
-        left: 10px;
-        top: 50%;
-        transform: translateY(-50%);
+    .controls {
+        bottom: 20px;
+    }
+}
+
+@media (orientation: portrait) {
+    canvas {
+        width: 100vw;
+        height: auto;
+    }
+
+    .controls {
+        bottom: 20px;
         flex-direction: column;
+        align-items: center;
     }
 
-    .right-controls {
-        bottom: auto;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
+    .left-controls, .right-controls {
+        flex-direction: row;
+        margin-bottom: 10px;
     }
 }

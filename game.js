@@ -1,8 +1,20 @@
 const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeCanvas() {
+    if (window.innerWidth > window.innerHeight) {
+        // Landscape
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - 100; // Adjust for controls
+    } else {
+        // Portrait
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - 100; // Adjust for controls
+    }
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
 const gravity = 0.5;
 
