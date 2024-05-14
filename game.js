@@ -43,14 +43,19 @@ class Player {
             this.velocity.y = 0;
             this.position.y = this.context.canvas.height - this.height; // Adjust position to stay on ground
         }
+
+        // Pengereman bertahap
+        if (!keys.left.pressed && !keys.right.pressed) {
+            this.velocity.x *= 0.9; // Kurangi kecepatan secara bertahap
+        }
     }
 
     moveLeft() {
-        this.velocity.x = -5;
+        this.velocity.x = -2; // Kurangi kecepatan dari -5 menjadi -2
     }
 
     moveRight() {
-        this.velocity.x = 5;
+        this.velocity.x = 2; // Kurangi kecepatan dari 5 menjadi 2
     }
 
     jump() {
@@ -80,25 +85,53 @@ const keys = {
     }
 };
 
-function animate() {
-    requestAnimationFrame(animate);
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    if (player) player.update();
-
-    if (keys.right.pressed && player.position.x < canvas.width - player.width) {
-        player.velocity.x = 5;
-    } else if (keys.left.pressed && player.position.x > 0) {
-        player.velocity.x = -5;
-    } else {
-        player.velocity.x = 0;
+function gameLoop() {
+    context.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan canvas
+    if (keys.left.pressed) {
+        player.moveLeft();
     }
-
-    if (keys.up.pressed && player.velocity.y === 0) {
-        player.velocity.y = -10;
+    if (keys.right.pressed) {
+        player.moveRight();
     }
+    player.update(); // Update status player
+    player.draw(); // Gambar player ke canvas
+    requestAnimationFrame(gameLoop); // Panggil gameLoop lagi di frame berikutnya
 }
 
-animate();
+function startGame(playerImage) {
+    const canvas = document.getElementById('gameCanvas');
+    const context = canvas.getContext('2d');
+    player = new Player(playerImage, context); // Pastikan ini adalah variabel global atau dapat diakses
+
+    requestAnimationFrame(gameLoop); // Mulai loop game
+
+    // Event listeners for controls
+    document.getElementById('leftBtn').addEventListener('touchstart', () => player.moveLeft());
+    document.getElementById('leftBtn').addEventListener('touchend', () => player.stopX());
+
+    document.getElementById('rightBtn').addEventListener('touchstart', () => player.moveRight());
+    document.getElementById('rightBtn').addEventListener('touchend', () => player.stopX());
+
+    document.getElementById('upBtn').addEventListener('touchstart', () => player.jump());
+    document.getElementById('upBtn').addEventListener('touchend', () => player.stopX());
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const playerImageSrc = localStorage.getItem('playerImage');
+
+    if (playerImageSrc) {
+        const playerImage = new Image();
+        playerImage.src = playerImageSrc;
+        playerImage.onload = () => {
+            startGame(playerImage);
+        };
+    } else {
+        // Jika tidak ada gambar pemain yang dipilih, tampilkan layar pemilihan pemain
+        document.getElementById('playerSelection').classList.remove('hidden');
+        document.getElementById('gameCanvas').classList.add('hidden');
+        document.querySelector('.controls').classList.add('hidden');
+    }
+});
 
 window.addEventListener('keydown', ({ keyCode }) => {
     switch (keyCode) {
@@ -146,42 +179,3 @@ document.getElementById('upBtn').addEventListener('touchend', () => keys.up.pres
 
 document.getElementById('downBtn').addEventListener('touchstart', () => keys.down.pressed = true);
 document.getElementById('downBtn').addEventListener('touchend', () => keys.down.pressed = false);
-
-document.addEventListener('DOMContentLoaded', () => {
-    const playerImageSrc = localStorage.getItem('playerImage');
-
-    if (playerImageSrc) {
-        const playerImage = new Image();
-        playerImage.src = playerImageSrc;
-        playerImage.onload = () => {
-            startGame(playerImage);
-        };
-    } else {
-        // Jika tidak ada gambar pemain yang dipilih, tampilkan layar pemilihan pemain
-        document.getElementById('playerSelection').classList.remove('hidden');
-        document.getElementById('gameCanvas').classList.add('hidden');
-        document.querySelector('.controls').classList.add('hidden');
-    }
-});
-
-function startGame(playerImage) {
-    const canvas = document.getElementById('gameCanvas');
-    const context = canvas.getContext('2d');
-    const player = new Player(playerImage, context);
-
-    function gameLoop() {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        player.update();
-        requestAnimationFrame(gameLoop);
-    }
-
-    gameLoop();
-
-    // Event listeners for controls
-    document.getElementById('leftBtn').addEventListener('mousedown', () => player.moveLeft());
-    document.getElementById('leftBtn').addEventListener('mouseup', () => player.stopX());
-    document.getElementById('rightBtn').addEventListener('mousedown', () => player.moveRight());
-    document.getElementById('rightBtn').addEventListener('mouseup', () => player.stopX());
-    document.getElementById('upBtn').addEventListener('mousedown', () => player.jump());
-}
-

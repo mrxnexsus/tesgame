@@ -21,6 +21,9 @@
             </div>
         </div>
     </div>
+    <div class="warning">
+        Silakan ubah perangkat Anda ke orientasi landscape untuk memainkan game ini.
+    </div>
     <canvas id="gameCanvas" class="hidden"></canvas>
     <div class="controls">
         <div class="left-controls">
@@ -34,8 +37,41 @@
     </div>
     <script src="playerSelection.js"></script>
     <script src="game.js"></script>
+    <script>
+        window.addEventListener("orientationchange", function() {
+            checkOrientation();
+        });
+        
+        function checkOrientation() {
+            if (window.orientation === 0 || window.orientation === 180) {
+                document.body.classList.add('portrait');
+                document.body.classList.remove('landscape');
+            } else {
+                document.body.classList.add('landscape');
+                document.body.classList.remove('portrait');
+            }
+        }
+        
+        // Panggil fungsi ini saat halaman dimuat
+        checkOrientation();
+    </script>
+    <script>
+        document.getElementById('leftBtn').addEventListener('click', function() {
+            // alert('Move Left'); // Komentar atau hapus baris ini
+        });
+
+        document.getElementById('rightBtn').addEventListener('click', function() {
+            // alert('Move Right'); // Komentar atau hapus baris ini
+        });
+
+        document.getElementById('upBtn').addEventListener('click', function() {
+            // alert('Move Up'); // Komentar atau hapus baris ini
+        });
+
+        document.getElementById('downBtn').addEventListener('click', function() {
+            // alert('Move Down'); // Komentar atau hapus baris ini
+        });
+    </script>
 </body>
 </html>
-
-
 
