@@ -1,8 +1,5 @@
 const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
-const playerSelectionScreen = document.getElementById('playerSelection');
-const controls = document.querySelector('.controls');
-let selectedPlayerImage;
 
 function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -15,22 +12,23 @@ window.addEventListener('resize', resizeCanvas);
 const gravity = 0.5;
 
 class Player {
-    constructor(image) {
+    constructor(image, context) {
         this.image = image;
+        this.context = context;
         this.position = {
             x: 100,
             y: 100
         };
         this.velocity = {
             x: 0,
-            y: 1
+            y: 0
         };
         this.width = 50;
         this.height = 50;
     }
 
     draw() {
-        context.drawImage(this.image, this.position.x, this.position.y, this.width, this.height);
+        this.context.drawImage(this.image, this.position.x, this.position.y, this.width, this.height);
     }
 
     update() {
@@ -38,11 +36,31 @@ class Player {
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
 
-        if (this.position.y + this.height + this.velocity.y <= canvas.height) {
-            this.velocity.y += gravity;
+        // Add gravity effect
+        if (this.position.y + this.height < this.context.canvas.height) {
+            this.velocity.y += 0.5;
         } else {
             this.velocity.y = 0;
+            this.position.y = this.context.canvas.height - this.height; // Adjust position to stay on ground
         }
+    }
+
+    moveLeft() {
+        this.velocity.x = -5;
+    }
+
+    moveRight() {
+        this.velocity.x = 5;
+    }
+
+    jump() {
+        if (this.position.y + this.height === this.context.canvas.height) {
+            this.velocity.y = -10;
+        }
+    }
+
+    stopX() {
+        this.velocity.x = 0;
     }
 }
 
@@ -129,20 +147,41 @@ document.getElementById('upBtn').addEventListener('touchend', () => keys.up.pres
 document.getElementById('downBtn').addEventListener('touchstart', () => keys.down.pressed = true);
 document.getElementById('downBtn').addEventListener('touchend', () => keys.down.pressed = false);
 
-// Player selection
-document.querySelectorAll('.player').forEach(playerDiv => {
-    playerDiv.addEventListener('click', (e) => {
-        const selectedPlayer = e.currentTarget.getAttribute('data-player');
-        console.log(`Selected player: ${selectedPlayer}`);
-        selectedPlayerImage = new Image();
-        selectedPlayerImage.src = `path/to/${selectedPlayer}.png`; // Pastikan jalur gambar benar
-        selectedPlayerImage.onload = () => {
-            player = new Player(selectedPlayerImage);
-            console.log('Player image loaded');
-            playerSelectionScreen.classList.add('hidden');
-            canvas.classList.remove('hidden');
-            controls.classList.remove('hidden');
-            resizeCanvas();
+document.addEventListener('DOMContentLoaded', () => {
+    const playerImageSrc = localStorage.getItem('playerImage');
+
+    if (playerImageSrc) {
+        const playerImage = new Image();
+        playerImage.src = playerImageSrc;
+        playerImage.onload = () => {
+            startGame(playerImage);
         };
-    });
+    } else {
+        // Jika tidak ada gambar pemain yang dipilih, tampilkan layar pemilihan pemain
+        document.getElementById('playerSelection').classList.remove('hidden');
+        document.getElementById('gameCanvas').classList.add('hidden');
+        document.querySelector('.controls').classList.add('hidden');
+    }
 });
+
+function startGame(playerImage) {
+    const canvas = document.getElementById('gameCanvas');
+    const context = canvas.getContext('2d');
+    const player = new Player(playerImage, context);
+
+    function gameLoop() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        player.update();
+        requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+
+    // Event listeners for controls
+    document.getElementById('leftBtn').addEventListener('mousedown', () => player.moveLeft());
+    document.getElementById('leftBtn').addEventListener('mouseup', () => player.stopX());
+    document.getElementById('rightBtn').addEventListener('mousedown', () => player.moveRight());
+    document.getElementById('rightBtn').addEventListener('mouseup', () => player.stopX());
+    document.getElementById('upBtn').addEventListener('mousedown', () => player.jump());
+}
+
