@@ -1,0 +1,44 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    flex-direction: column;
+}
+
+canvas {
+    background-color: #87CEEB;
+}
+
+.controls {
+    position: fixed;
+    display: flex;
+    gap: 10px;
+}
+
+.left-controls {
+    bottom: 10px;
+    left: 10px;
+}
+
+.right-controls {
+    bottom: 10px;
+    right: 10px;
+    flex-direction: column;
+}
+
+button {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    border: none;
+    border-radius: 5px;
+    background-color: #fff;
+    opacity: 0.8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
