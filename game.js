@@ -1,13 +1,10 @@
 const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
 
-function resizeCanvas() {
+window.onload = window.onresize = function() {
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 100; // Adjust for controls
-}
-
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+    canvas.height = window.innerHeight;
+};
 
 const gravity = 0.5;
 
@@ -38,10 +35,17 @@ class Player {
 
         // Add gravity effect
         if (this.position.y + this.height < this.context.canvas.height) {
-            this.velocity.y += 0.5;
+            this.velocity.y += gravity;
         } else {
             this.velocity.y = 0;
             this.position.y = this.context.canvas.height - this.height; // Adjust position to stay on ground
+        }
+
+        // Prevent player from going out of the horizontal bounds
+        if (this.position.x < 0) {
+            this.position.x = 0;
+        } else if (this.position.x + this.width > this.context.canvas.width) {
+            this.position.x = this.context.canvas.width - this.width;
         }
 
         // Pengereman bertahap

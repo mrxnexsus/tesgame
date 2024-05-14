@@ -41,6 +41,11 @@ body {
 
 .player {
     cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.player:hover {
+    transform: scale(1.1);
 }
 
 .controls {
@@ -63,26 +68,38 @@ body {
     border-radius: 50%;
 }
 
-.player:hover {
-    transform: scale(1.1);
-}
-
 canvas {
-    background-color: #87CEEB;
+    display: block; /* Menghilangkan margin bawaan */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000; /* Warna latar belakang, sesuaikan jika perlu */
 }
 
 button {
-    width: 60px;
-    height: 60px;
-    font-size: 24px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
     border: none;
     border-radius: 5px;
-    background-color: #fff;
-    opacity: 0.8;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#playerSelection {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-shrink: 0;
+    height: 100vh;
+    background-color: #f0f0f0;
+    flex-direction: column;
 }
 
 /* Responsif untuk mode portrait dan landscape */
