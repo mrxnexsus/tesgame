@@ -1,16 +1,12 @@
 const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
+const playerSelectionScreen = document.getElementById('playerSelection');
+const controls = document.querySelector('.controls');
+let selectedPlayerImage;
 
 function resizeCanvas() {
-    if (window.innerWidth > window.innerHeight) {
-        // Landscape
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight - 100; // Adjust for controls
-    } else {
-        // Portrait
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight - 100; // Adjust for controls
-    }
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 100; // Adjust for controls
 }
 
 resizeCanvas();
@@ -19,7 +15,8 @@ window.addEventListener('resize', resizeCanvas);
 const gravity = 0.5;
 
 class Player {
-    constructor() {
+    constructor(image) {
+        this.image = image;
         this.position = {
             x: 100,
             y: 100
@@ -28,13 +25,12 @@ class Player {
             x: 0,
             y: 1
         };
-        this.width = 30;
-        this.height = 30;
+        this.width = 50;
+        this.height = 50;
     }
 
     draw() {
-        context.fillStyle = 'red';
-        context.fillRect(this.position.x, this.position.y, this.width, this.height);
+        context.drawImage(this.image, this.position.x, this.position.y, this.width, this.height);
     }
 
     update() {
@@ -42,14 +38,15 @@ class Player {
         this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
 
-        if (this.position.y + this.height + this.velocity.y <= canvas.height)
+        if (this.position.y + this.height + this.velocity.y <= canvas.height) {
             this.velocity.y += gravity;
-        else
+        } else {
             this.velocity.y = 0;
+        }
     }
 }
 
-const player = new Player();
+let player;
 const keys = {
     right: {
         pressed: false
@@ -68,7 +65,7 @@ const keys = {
 function animate() {
     requestAnimationFrame(animate);
     context.clearRect(0, 0, canvas.width, canvas.height);
-    player.update();
+    if (player) player.update();
 
     if (keys.right.pressed && player.position.x < canvas.width - player.width) {
         player.velocity.x = 5;
@@ -131,3 +128,21 @@ document.getElementById('upBtn').addEventListener('touchend', () => keys.up.pres
 
 document.getElementById('downBtn').addEventListener('touchstart', () => keys.down.pressed = true);
 document.getElementById('downBtn').addEventListener('touchend', () => keys.down.pressed = false);
+
+// Player selection
+document.querySelectorAll('.player').forEach(playerDiv => {
+    playerDiv.addEventListener('click', (e) => {
+        const selectedPlayer = e.currentTarget.getAttribute('data-player');
+        console.log(`Selected player: ${selectedPlayer}`);
+        selectedPlayerImage = new Image();
+        selectedPlayerImage.src = `path/to/${selectedPlayer}.png`; // Pastikan jalur gambar benar
+        selectedPlayerImage.onload = () => {
+            player = new Player(selectedPlayerImage);
+            console.log('Player image loaded');
+            playerSelectionScreen.classList.add('hidden');
+            canvas.classList.remove('hidden');
+            controls.classList.remove('hidden');
+            resizeCanvas();
+        };
+    });
+});

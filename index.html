@@ -8,8 +8,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <div class="controls">
+    <div id="playerSelection" class="selection-screen">
+        <h1>Select Your Player</h1>
+        <div class="player-options">
+            <div class="player" data-player="player1">
+                <img src="path/to/player1.png" alt="Player 1">
+                <p>Player 1</p>
+            </div>
+            <div class="player" data-player="player2">
+                <img src="path/to/player2.png" alt="Player 2">
+                <p>Player 2</p>
+            </div>
+            <!-- Add more players as needed -->
+        </div>
+    </div>
+    <canvas id="gameCanvas" class="hidden"></canvas>
+    <div class="controls hidden">
         <div class="left-controls">
             <button id="leftBtn"><i class="fas fa-arrow-left"></i></button>
             <button id="rightBtn"><i class="fas fa-arrow-right"></i></button>
