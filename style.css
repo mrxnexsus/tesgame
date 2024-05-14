@@ -42,3 +42,25 @@ button {
     justify-content: center;
     align-items: center;
 }
+
+/* Media query untuk mode landscape */
+@media (orientation: landscape) {
+    body {
+        flex-direction: row;
+    }
+
+    .left-controls {
+        bottom: auto;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        flex-direction: column;
+    }
+
+    .right-controls {
+        bottom: auto;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+}
