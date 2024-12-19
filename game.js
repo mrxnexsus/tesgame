@@ -22,9 +22,9 @@ class Player {
         };
         this.width = 40;
         this.height = 40;
-        this.jumpForce = -10;
+        this.jumpForce = -9;
         this.maxSpeed = 5;
-        this.maxFallSpeed = 3;
+        this.maxFallSpeed = 2;
         this.isJumping = false;
     }
 
