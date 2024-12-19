@@ -6,7 +6,7 @@ window.onload = window.onresize = function() {
     canvas.height = window.innerHeight;
 };
 
-const gravity = 0.3;
+const gravity = 0.25;
 
 class Player {
     constructor(image, context) {
@@ -22,8 +22,9 @@ class Player {
         };
         this.width = 40;
         this.height = 40;
-        this.jumpForce = -8;
+        this.jumpForce = -10;
         this.maxSpeed = 5;
+        this.maxFallSpeed = 3;
         this.isJumping = false;
     }
 
@@ -39,23 +40,23 @@ class Player {
         // Gravity and ground collision
         if (this.position.y + this.height < canvas.height) {
             this.velocity.y += gravity;
+            // Limit fall speed
+            if (this.velocity.y > this.maxFallSpeed) {
+                this.velocity.y = this.maxFallSpeed;
+            }
         } else {
             this.velocity.y = 0;
             this.position.y = canvas.height - this.height;
             this.isJumping = false;
         }
 
-        // Handle keyboard input
+        // Handle keyboard input for left/right only
         if (keys.left.pressed) {
             this.moveLeft();
         } else if (keys.right.pressed) {
             this.moveRight();
         } else {
             this.velocity.x = 0;
-        }
-
-        if (keys.up.pressed && !this.isJumping) {
-            this.jump();
         }
     }
 
