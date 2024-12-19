@@ -23,7 +23,7 @@ class Player {
         this.width = 40;
         this.height = 40;
         this.jumpForce = -8;
-        this.maxSpeed = 5;
+        this.maxSpeed = 1;
         this.maxFallSpeed = 2.5;
         this.isJumping = false;
     }
