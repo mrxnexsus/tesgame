@@ -20,8 +20,11 @@ class Player {
             x: 0,
             y: 0
         };
-        this.width = 50;
-        this.height = 50;
+        this.width = 40;
+        this.height = 40;
+        this.jumpForce = -12;
+        this.maxSpeed = 5;
+        this.isJumping = false;
     }
 
     draw() {
@@ -30,27 +33,22 @@ class Player {
 
     update() {
         this.draw();
-        this.position.y += this.velocity.y;
         this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
 
-        // Add gravity effect
-        if (this.position.y + this.height < this.context.canvas.height) {
+        // More responsive jumping physics
+        if (this.position.y + this.height < canvas.height) {
             this.velocity.y += gravity;
+            this.isJumping = true;
         } else {
             this.velocity.y = 0;
-            this.position.y = this.context.canvas.height - this.height; // Adjust position to stay on ground
+            this.position.y = canvas.height - this.height;
+            this.isJumping = false;
         }
 
-        // Prevent player from going out of the horizontal bounds
-        if (this.position.x < 0) {
-            this.position.x = 0;
-        } else if (this.position.x + this.width > this.context.canvas.width) {
-            this.position.x = this.context.canvas.width - this.width;
-        }
-
-        // Pengereman bertahap
-        if (!keys.left.pressed && !keys.right.pressed) {
-            this.velocity.x *= 0.9; // Kurangi kecepatan secara bertahap
+        // Limit horizontal speed
+        if (Math.abs(this.velocity.x) > this.maxSpeed) {
+            this.velocity.x = this.maxSpeed * Math.sign(this.velocity.x);
         }
     }
 
@@ -63,8 +61,9 @@ class Player {
     }
 
     jump() {
-        if (this.position.y + this.height === this.context.canvas.height) {
-            this.velocity.y = -10;
+        if (!this.isJumping) {
+            this.velocity.y = this.jumpForce;
+            this.isJumping = true;
         }
     }
 
@@ -101,6 +100,20 @@ class Obstacle {
     }
 }
 
+class Platform {
+    constructor(context, x, y, width, height) {
+        this.context = context;
+        this.position = { x, y };
+        this.width = width;
+        this.height = height;
+    }
+
+    draw() {
+        this.context.fillStyle = '#4a4a4a';
+        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    }
+}
+
 let player;
 const keys = {
     right: {
@@ -119,53 +132,55 @@ const keys = {
 
 let key;
 let obstacles = [];
+let platforms = [];
 
 function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw and update player
-    if (keys.left.pressed) {
-        player.moveLeft();
-    }
-    if (keys.right.pressed) {
-        player.moveRight();
-    }
-    player.update();
-
+    
+    // Draw background
+    context.fillStyle = '#87CEEB';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Update and draw platforms
+    platforms.forEach(platform => platform.draw());
+    
+    // Update and draw obstacles
+    obstacles.forEach(obstacle => obstacle.draw());
+    
     // Draw key
     key.draw();
-
-    // Draw obstacles
-    obstacles.forEach(obstacle => obstacle.draw());
-
-    // Check for key collection
-    if (checkCollision(player, key)) {
-        console.log('Key collected!');
-        // Handle key collection logic here
-    }
-
-    // Check for obstacle collision
-    obstacles.forEach(obstacle => {
-        if (checkCollision(player, obstacle)) {
-            console.log('Hit an obstacle!');
-            // Handle obstacle collision logic here
-        }
-    });
-
+    
+    // Update player
+    player.update();
+    
+    // Handle all collisions
+    handleCollisions();
+    
     requestAnimationFrame(gameLoop);
 }
 
 function startGame(playerImage) {
     const canvas = document.getElementById('gameCanvas');
     const context = canvas.getContext('2d');
+    
+    // Create platforms
+    platforms = [
+        new Platform(context, 0, canvas.height - 20, canvas.width, 20), // Ground
+        new Platform(context, 300, canvas.height - 120, 200, 20),
+        new Platform(context, 600, canvas.height - 200, 200, 20),
+    ];
+
+    // Create obstacles
+    obstacles = [
+        new Obstacle(context, { x: 400, y: canvas.height - 160 }, 40, 40),
+        new Obstacle(context, { x: 700, y: canvas.height - 240 }, 40, 40)
+    ];
+
+    // Place key in a challenging position
+    key = new Key(context, { x: 750, y: canvas.height - 260 });
+
+    // Initialize player
     player = new Player(playerImage, context);
-
-    // Initialize key
-    key = new Key(context, { x: 300, y: 300 });
-
-    // Initialize obstacles
-    obstacles.push(new Obstacle(context, { x: 200, y: 400 }, 100, 20));
-    obstacles.push(new Obstacle(context, { x: 500, y: 200 }, 150, 20));
 
     requestAnimationFrame(gameLoop);
 
@@ -253,4 +268,39 @@ function checkCollision(rect1, rect2) {
         rect1.position.y < rect2.position.y + rect2.height &&
         rect1.position.y + rect1.height > rect2.position.y
     );
+}
+
+function handleCollisions() {
+    // Platform collisions
+    platforms.forEach(platform => {
+        if (checkCollision(player, platform)) {
+            // Top collision
+            if (player.velocity.y > 0 && 
+                player.position.y + player.height - player.velocity.y <= platform.position.y) {
+                player.position.y = platform.position.y - player.height;
+                player.velocity.y = 0;
+                player.isJumping = false;
+            }
+            // Bottom collision
+            else if (player.velocity.y < 0) {
+                player.position.y = platform.position.y + platform.height;
+                player.velocity.y = 0;
+            }
+        }
+    });
+
+    // Obstacle collisions - reset player position
+    obstacles.forEach(obstacle => {
+        if (checkCollision(player, obstacle)) {
+            player.position.x = 100;
+            player.position.y = 100;
+        }
+    });
+
+    // Key collection
+    if (checkCollision(player, key)) {
+        // Show victory message or next level
+        alert('Level Complete!');
+        startGame(player.image);
+    }
 }
