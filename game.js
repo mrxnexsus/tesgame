@@ -322,7 +322,9 @@ function handleCollisions() {
 
     // Key collection
     if (checkCollision(player, key)) {
-        // Show victory message or next level
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
         alert('Level Complete!');
         startGame(player.image);
     }
