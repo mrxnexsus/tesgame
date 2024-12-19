@@ -73,6 +73,34 @@ class Player {
     }
 }
 
+class Key {
+    constructor(context, position) {
+        this.context = context;
+        this.position = position;
+        this.width = 30;
+        this.height = 30;
+    }
+
+    draw() {
+        this.context.fillStyle = 'gold';
+        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    }
+}
+
+class Obstacle {
+    constructor(context, position, width, height) {
+        this.context = context;
+        this.position = position;
+        this.width = width;
+        this.height = height;
+    }
+
+    draw() {
+        this.context.fillStyle = 'red';
+        this.context.fillRect(this.position.x, this.position.y, this.width, this.height);
+    }
+}
+
 let player;
 const keys = {
     right: {
@@ -89,25 +117,57 @@ const keys = {
     }
 };
 
+let key;
+let obstacles = [];
+
 function gameLoop() {
-    context.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw and update player
     if (keys.left.pressed) {
         player.moveLeft();
     }
     if (keys.right.pressed) {
         player.moveRight();
     }
-    player.update(); // Update status player
-    player.draw(); // Gambar player ke canvas
-    requestAnimationFrame(gameLoop); // Panggil gameLoop lagi di frame berikutnya
+    player.update();
+
+    // Draw key
+    key.draw();
+
+    // Draw obstacles
+    obstacles.forEach(obstacle => obstacle.draw());
+
+    // Check for key collection
+    if (checkCollision(player, key)) {
+        console.log('Key collected!');
+        // Handle key collection logic here
+    }
+
+    // Check for obstacle collision
+    obstacles.forEach(obstacle => {
+        if (checkCollision(player, obstacle)) {
+            console.log('Hit an obstacle!');
+            // Handle obstacle collision logic here
+        }
+    });
+
+    requestAnimationFrame(gameLoop);
 }
 
 function startGame(playerImage) {
     const canvas = document.getElementById('gameCanvas');
     const context = canvas.getContext('2d');
-    player = new Player(playerImage, context); // Pastikan ini adalah variabel global atau dapat diakses
+    player = new Player(playerImage, context);
 
-    requestAnimationFrame(gameLoop); // Mulai loop game
+    // Initialize key
+    key = new Key(context, { x: 300, y: 300 });
+
+    // Initialize obstacles
+    obstacles.push(new Obstacle(context, { x: 200, y: 400 }, 100, 20));
+    obstacles.push(new Obstacle(context, { x: 500, y: 200 }, 150, 20));
+
+    requestAnimationFrame(gameLoop);
 
     // Event listeners for controls
     document.getElementById('leftBtn').addEventListener('touchstart', () => player.moveLeft());
@@ -185,3 +245,12 @@ document.getElementById('upBtn').addEventListener('touchend', () => keys.up.pres
 
 document.getElementById('downBtn').addEventListener('touchstart', () => keys.down.pressed = true);
 document.getElementById('downBtn').addEventListener('touchend', () => keys.down.pressed = false);
+
+function checkCollision(rect1, rect2) {
+    return (
+        rect1.position.x < rect2.position.x + rect2.width &&
+        rect1.position.x + rect1.width > rect2.position.x &&
+        rect1.position.y < rect2.position.y + rect2.height &&
+        rect1.position.y + rect1.height > rect2.position.y
+    );
+}
