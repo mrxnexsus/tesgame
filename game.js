@@ -6,7 +6,7 @@ window.onload = window.onresize = function() {
     canvas.height = window.innerHeight;
 };
 
-const gravity = 0.5;
+const gravity = 0.3;
 
 class Player {
     constructor(image, context) {
@@ -22,7 +22,7 @@ class Player {
         };
         this.width = 40;
         this.height = 40;
-        this.jumpForce = -12;
+        this.jumpForce = -8;
         this.maxSpeed = 5;
         this.isJumping = false;
     }
@@ -198,14 +198,15 @@ function startGame(playerImage) {
     document.getElementById('rightBtn').addEventListener('touchstart', () => player.moveRight());
     document.getElementById('rightBtn').addEventListener('touchend', () => player.stopX());
 
-    document.getElementById('upBtn').addEventListener('touchstart', () => {
+    document.getElementById('upBtn').addEventListener('touchstart', (e) => {
+        e.preventDefault();
         if (!player.isJumping) {
             player.jump();
         }
     });
 
-    document.getElementById('upBtn').addEventListener('touchend', () => {
-        keys.up.pressed = false;
+    document.getElementById('upBtn').addEventListener('touchend', (e) => {
+        e.preventDefault();
     });
 
     document.getElementById('playerSelection').classList.add('hidden');
