@@ -36,19 +36,26 @@ class Player {
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
 
-        // More responsive jumping physics
+        // Gravity and ground collision
         if (this.position.y + this.height < canvas.height) {
             this.velocity.y += gravity;
-            this.isJumping = true;
         } else {
             this.velocity.y = 0;
             this.position.y = canvas.height - this.height;
             this.isJumping = false;
         }
 
-        // Limit horizontal speed
-        if (Math.abs(this.velocity.x) > this.maxSpeed) {
-            this.velocity.x = this.maxSpeed * Math.sign(this.velocity.x);
+        // Handle keyboard input
+        if (keys.left.pressed) {
+            this.moveLeft();
+        } else if (keys.right.pressed) {
+            this.moveRight();
+        } else {
+            this.velocity.x = 0;
+        }
+
+        if (keys.up.pressed && !this.isJumping) {
+            this.jump();
         }
     }
 
@@ -153,7 +160,7 @@ function gameLoop() {
     // Update player
     player.update();
     
-    // Handle all collisions
+    // Handle collisions
     handleCollisions();
     
     requestAnimationFrame(gameLoop);
@@ -191,8 +198,15 @@ function startGame(playerImage) {
     document.getElementById('rightBtn').addEventListener('touchstart', () => player.moveRight());
     document.getElementById('rightBtn').addEventListener('touchend', () => player.stopX());
 
-    document.getElementById('upBtn').addEventListener('touchstart', () => player.jump());
-    document.getElementById('upBtn').addEventListener('touchend', () => player.stopX());
+    document.getElementById('upBtn').addEventListener('touchstart', () => {
+        if (!player.isJumping) {
+            player.jump();
+        }
+    });
+
+    document.getElementById('upBtn').addEventListener('touchend', () => {
+        keys.up.pressed = false;
+    });
 
     document.getElementById('playerSelection').classList.add('hidden');
 }
@@ -227,6 +241,12 @@ window.addEventListener('keydown', ({ keyCode }) => {
             break;
         case 40:
             keys.down.pressed = true;
+            break;
+        case 38: // Up arrow
+        case 32: // Spacebar
+            if (!player.isJumping) {
+                player.jump();
+            }
             break;
     }
 });
@@ -274,17 +294,12 @@ function handleCollisions() {
     // Platform collisions
     platforms.forEach(platform => {
         if (checkCollision(player, platform)) {
-            // Top collision
+            // Landing on top of platform
             if (player.velocity.y > 0 && 
                 player.position.y + player.height - player.velocity.y <= platform.position.y) {
                 player.position.y = platform.position.y - player.height;
                 player.velocity.y = 0;
                 player.isJumping = false;
-            }
-            // Bottom collision
-            else if (player.velocity.y < 0) {
-                player.position.y = platform.position.y + platform.height;
-                player.velocity.y = 0;
             }
         }
     });
