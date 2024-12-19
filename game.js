@@ -141,6 +141,7 @@ const keys = {
 let key;
 let obstacles = [];
 let platforms = [];
+let animationFrameId;
 
 function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
@@ -164,10 +165,15 @@ function gameLoop() {
     // Handle collisions
     handleCollisions();
     
-    requestAnimationFrame(gameLoop);
+    animationFrameId = requestAnimationFrame(gameLoop);
 }
 
 function startGame(playerImage) {
+    // Cancel existing animation frame if any
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+    
     const canvas = document.getElementById('gameCanvas');
     const context = canvas.getContext('2d');
     
